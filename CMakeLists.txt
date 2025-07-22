@@ -23,7 +23,8 @@ pico_sdk_init()
 
 include_directories(${CMAKE_SOURCE_DIR}/lib)
 
-add_executable(${PROJECT_NAME}  
+# Executável do projeto original (controle de bomba)
+add_executable(Grupo_Bomba  
         Grupo_Bomba.c
         lib/ssd1306/ssd1306.c
         lib/botoes/botoes.c
@@ -34,9 +35,25 @@ add_executable(${PROJECT_NAME}
         lib/rgb/rgb.c
         )
 
-pico_generate_pio_header(${PROJECT_NAME} ${CMAKE_CURRENT_LIST_DIR}/lib/matriz/matriz.pio)
+# Executável do novo projeto (estação meteorológica)
+add_executable(Estacao_Meteorologica  
+        estacao_meteorologica.c
+        lib/ssd1306/ssd1306.c
+        lib/botoes/botoes.c
+        lib/matriz/matriz.c
+        lib/buzzer/buzzer.c
+        lib/rgb/rgb.c
+        lib/aht20/aht20.c
+        lib/bmp280/bmp280.c
+        lib/sensores/sensores.c
+        lib/web/web_meteorologia.c
+        )
 
-target_link_libraries(${PROJECT_NAME} 
+pico_generate_pio_header(Grupo_Bomba ${CMAKE_CURRENT_LIST_DIR}/lib/matriz/matriz.pio)
+pico_generate_pio_header(Estacao_Meteorologica ${CMAKE_CURRENT_LIST_DIR}/lib/matriz/matriz.pio)
+
+# Configurações para projeto original
+target_link_libraries(Grupo_Bomba 
         pico_stdlib 
         hardware_i2c
         hardware_adc
@@ -44,7 +61,16 @@ target_link_libraries(${PROJECT_NAME}
         pico_cyw43_arch_lwip_threadsafe_background
         )
 
-target_include_directories(${PROJECT_NAME}  PRIVATE   ${CMAKE_CURRENT_LIST_DIR} 
+# Configurações para estação meteorológica
+target_link_libraries(Estacao_Meteorologica 
+        pico_stdlib 
+        hardware_i2c
+        hardware_gpio
+        hardware_pwm        
+        pico_cyw43_arch_lwip_threadsafe_background
+        )
+
+target_include_directories(Grupo_Bomba PRIVATE ${CMAKE_CURRENT_LIST_DIR} 
         lib/ssd1306
         lib/botoes
         lib/matriz
@@ -54,8 +80,22 @@ target_include_directories(${PROJECT_NAME}  PRIVATE   ${CMAKE_CURRENT_LIST_DIR}
         lib/rgb
         )
 
-pico_enable_stdio_usb(${PROJECT_NAME} 1)
-pico_enable_stdio_uart(${PROJECT_NAME} 0)
+target_include_directories(Estacao_Meteorologica PRIVATE ${CMAKE_CURRENT_LIST_DIR} 
+        lib/ssd1306
+        lib/botoes
+        lib/matriz
+        lib/buzzer
+        lib/rgb
+        lib/aht20
+        lib/bmp280
+        lib/sensores
+        lib/web
+        )
 
+pico_enable_stdio_usb(Grupo_Bomba 1)
+pico_enable_stdio_uart(Grupo_Bomba 0)
+pico_add_extra_outputs(Grupo_Bomba)
 
-pico_add_extra_outputs(${PROJECT_NAME})
+pico_enable_stdio_usb(Estacao_Meteorologica 1)
+pico_enable_stdio_uart(Estacao_Meteorologica 0)
+pico_add_extra_outputs(Estacao_Meteorologica)
