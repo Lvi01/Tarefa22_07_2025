@@ -8,8 +8,8 @@
     // Incluir bibliotecas dos sensores e periféricos
 #include "aht20.h"
 #include "bmp280.h"
-#include "ssd1306.h"
-#include "font.h"
+// #include "ssd1306.h"  // Display comentado devido a conflito I2C
+// #include "font.h"     // Display comentado devido a conflito I2C
 #include "botoes.h"
 #include "buzzer.h"
 #include "rgb.h"
@@ -22,11 +22,11 @@
 #define I2C_SDA 0
 #define I2C_SCL 1
 
-// Configurações I2C para display
-#define I2C_PORT_DISP i2c1
-#define I2C_SDA_DISP 14
-#define I2C_SCL_DISP 15
-#define ENDERECO_DISPLAY 0x3C
+// Configurações I2C para display - COMENTADO devido a conflito I2C
+// #define I2C_PORT_DISP i2c1
+// #define I2C_SDA_DISP 2
+// #define I2C_SCL_DISP 3
+// #define ENDERECO_DISPLAY 0x3C
 
 // Configuração do botão BOOTSEL
 #define BOTAO_BOOTSEL 6
@@ -46,13 +46,13 @@ ConfiguracoesSensores config_sensores = {
 
 // Variáveis locais de controle
 volatile bool alerta_ativo = false;
-volatile int pagina_atual = 0;
+// volatile int pagina_atual = 0;  // Variável do display comentada
 
 // Protótipos de funções
 void inicializar_sistema(void);
 void ler_sensores(void);
 void verificar_alertas(void);
-void atualizar_display(void);
+// void atualizar_display(void);  // Função do display comentada
 void atualizar_matriz_meteorologica(void);
 void verificar_botoes(void);
 double calculate_altitude(double pressure);
@@ -75,11 +75,11 @@ void verificar_botoes(void) {
         reset_usb_boot(0, 0);
     }
     
-    // Verificar botão 5 (trocar página)
-    if (!gpio_get(BOTAO_5)) {
-        pagina_atual = (pagina_atual + 1) % 3;
-        ultimo_botao = now;
-    }
+    // Verificar botão 5 (trocar página) - COMENTADO (função do display)
+    // if (!gpio_get(BOTAO_5)) {
+    //     pagina_atual = (pagina_atual + 1) % 3;
+    //     ultimo_botao = now;
+    // }
     
     // Verificar botão joystick (toggle alerta)
     if (!gpio_get(BOTAO_JOYSTICK)) {
@@ -104,19 +104,19 @@ void inicializar_sistema(void) {
     configurar_leds();
     init_matriz();
     
-    // Inicializar I2C para display
-    i2c_init(I2C_PORT_DISP, 400 * 1000);
-    gpio_set_function(I2C_SDA_DISP, GPIO_FUNC_I2C);
-    gpio_set_function(I2C_SCL_DISP, GPIO_FUNC_I2C);
-    gpio_pull_up(I2C_SDA_DISP);
-    gpio_pull_up(I2C_SCL_DISP);
+    // Inicializar I2C para display - COMENTADO devido a conflito I2C
+    // i2c_init(I2C_PORT_DISP, 400 * 1000);
+    // gpio_set_function(I2C_SDA_DISP, GPIO_FUNC_I2C);
+    // gpio_set_function(I2C_SCL_DISP, GPIO_FUNC_I2C);
+    // gpio_pull_up(I2C_SDA_DISP);
+    // gpio_pull_up(I2C_SCL_DISP);
     
-    // Inicializar display
-    static ssd1306_t ssd;
-    ssd1306_init(&ssd, WIDTH, HEIGHT, false, ENDERECO_DISPLAY, I2C_PORT_DISP);
-    ssd1306_config(&ssd);
-    ssd1306_fill(&ssd, false);
-    ssd1306_send_data(&ssd);
+    // Inicializar display - COMENTADO devido a conflito I2C
+    // static ssd1306_t ssd;
+    // ssd1306_init(&ssd, WIDTH, HEIGHT, false, ENDERECO_DISPLAY, I2C_PORT_DISP);
+    // ssd1306_config(&ssd);
+    // ssd1306_fill(&ssd, false);
+    // ssd1306_send_data(&ssd);
     
     // Inicializar I2C para sensores
     i2c_init(I2C_PORT, 400 * 1000);
@@ -171,6 +171,8 @@ void verificar_alertas(void) {
     }
 }
 
+// FUNÇÃO ATUALIZAR_DISPLAY COMENTADA devido a conflito I2C com display
+/*
 void atualizar_display(void) {
     static ssd1306_t ssd;
     char linha1[20], linha2[20], linha3[20], linha4[20];
@@ -213,6 +215,7 @@ void atualizar_display(void) {
     
     ssd1306_send_data(&ssd);
 }
+*/
 
 void atualizar_matriz_meteorologica(void) {
     // Usar a matriz para mostrar níveis dos sensores
@@ -243,7 +246,7 @@ int main(void) {
     printf("=== ESTAÇÃO METEOROLÓGICA INICIADA ===\n");
     
     uint32_t ultimo_update = 0;
-    uint32_t ultimo_display = 0;
+    // uint32_t ultimo_display = 0;  // Variável do display comentada
     
     while (true) {
         uint32_t now = to_ms_since_boot(get_absolute_time());
@@ -265,11 +268,11 @@ int main(void) {
             ultimo_update = now;
         }
         
-        // Atualizar display a cada 500ms
-        if (now - ultimo_display >= 500) {
-            atualizar_display();
-            ultimo_display = now;
-        }
+        // Atualizar display a cada 500ms - COMENTADO devido a conflito I2C
+        // if (now - ultimo_display >= 500) {
+        //     atualizar_display();
+        //     ultimo_display = now;
+        // }
         
         sleep_ms(50); // Delay para não sobrecarregar o sistema
     }
